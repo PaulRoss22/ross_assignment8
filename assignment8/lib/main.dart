@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     widget.api.getAllCourses().then((data) {
+      print(data);
       setState(() {
         courses = data;
         _dbLoaded = true;
@@ -51,19 +52,50 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text("Assignment 8 App"),
         ),
         body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              "Course Name  |  Instructor Name  |  Course Credits",
-              style: TextStyle(fontSize: 18),
-            ),
-            Expanded(
-                child: ListView(
-              shrinkWrap: true,
-              padding: EdgeInsets.all(15.0),
-              children: [
-                Column(
+          child: _dbLoaded
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "Course Name  |  Instructor Name  |  Course Credits",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Expanded(
+                        child: ListView(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.all(15.0),
+                      children: [
+                        ...courses.map<Widget>(
+                          (course) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 30),
+                            child: TextButton(
+                                onPressed: () => {
+                                      Navigator.pop(context),
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Student(
+                                                    id: course['_id'],
+                                                    courseName:
+                                                        course['courseName'],
+                                                    fname: '',
+                                                  ))),
+                                    },
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(course['courseName']),
+                                      Text(course['courseInstructor']),
+                                      Text(course['courseCredits'].toString())
+                                    ])),
+                          ),
+                        ),
+                      ].toList(),
+                    )),
+                  ],
+                )
+              : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
@@ -74,36 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     CircularProgressIndicator()
                   ],
                 ),
-                ...courses.map<Widget>(
-                  (course) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: TextButton(
-                      onPressed: () => {
-                        Navigator.pop(context),
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Student(
-                                      id: course['_id'],
-                                      courseName: course['courseName'],
-                                      fname: '',
-                                    ))),
-                      },
-                      child: ListTile(
-                          title: Text(
-                        (course['courseName'] +
-                            "  |  " +
-                            course['courseInstructor'] +
-                            "  |  " +
-                            course['courseCredits'].toString()),
-                        style: TextStyle(fontSize: 18),
-                      )),
-                    ),
-                  ),
-                ),
-              ].toList(),
-            )),
-          ],
-        )));
+        ));
   }
 }
